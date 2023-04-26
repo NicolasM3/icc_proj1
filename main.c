@@ -2,10 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct Usuario{
+struct User{
     int id;
-    char nome[100];
-    float saldo;
+    char name[100];
+    float amount;
 };
 
 void writeNewLine(char filename[], char line[]) {
@@ -21,10 +21,10 @@ void writeNewLine(char filename[], char line[]) {
     fclose(file);
 }
 
-struct Usuario * readUsuariosFromFile(char filename[]) { 
+struct User * readUsersFromFile(char filename[]) {
     FILE *file = fopen(filename, "r");
-    int tamanho = 0;
-    struct Usuario *usuarios = NULL;
+    int size = 0;
+    struct User *users = NULL;
 
     if (file == NULL) {
         printf("Error opening file: %s\n", filename);
@@ -32,17 +32,17 @@ struct Usuario * readUsuariosFromFile(char filename[]) {
     }
 
     while (!feof(file)) {
-        struct Usuario temp;
+        struct User temp;
 
-        fscanf(file,"%d %s %f", &temp.id, temp.nome, &temp.saldo);
+        fscanf(file,"%d %s %f", &temp.id, temp.name, &temp.amount);
 
-        usuarios = (struct Usuario *)realloc(usuarios, sizeof(struct Usuario) * (tamanho + 1));
-        usuarios[tamanho] = temp;
-        tamanho++;
+        users = (struct User *)realloc(users, sizeof(struct User) * (size + 1));
+        users[size] = temp;
+        size++;
     }
 
     fclose(file);
-    return usuarios;
+    return users;
 }
 
 int main() {
@@ -52,9 +52,9 @@ int main() {
     writeNewLine(filename, "2 Romanhole 1200.0");
     writeNewLine(filename, "3 Prato 2200.0");
 
-    struct Usuario *usuarios = readUsuariosFromFile("File1.txt");
+    struct User *users = readUsersFromFile("File1.txt");
 
     for (int i = 0; i < 3; i++) {
-        printf("%d %s %f\n", usuarios[i].id, usuarios[i].nome, usuarios[i].saldo);
+        printf("%d %s %f\n", users[i].id, users[i].name, users[i].amount);
     }
 }
