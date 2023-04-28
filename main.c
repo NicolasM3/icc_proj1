@@ -21,7 +21,7 @@ void writeNewLine(char filename[], char line[]) {
         return;
     }
 
-    fprintf(file, "%s\n", line);
+    fprintf(file, "\n%s", line);
 
     fclose(file);
 }
