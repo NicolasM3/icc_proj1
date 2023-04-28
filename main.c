@@ -5,6 +5,7 @@
 struct User{
     int id;
     char name[100];
+    int age;
     float amount;
 };
 
@@ -39,7 +40,7 @@ struct UserArray readUsersFromFile(char filename[]) {
     while (!feof(file)) {
         struct User temp;
 
-        fscanf(file,"%d %s %f", &temp.id, temp.name, &temp.amount);
+        fscanf(file,"%d %s %d %f", &temp.id, temp.name, &temp.age, &temp.amount);
 
         users = (struct User *)realloc(users, sizeof(struct User) * (size + 1));
         users[size] = temp;
@@ -60,7 +61,7 @@ struct User readUser(char filename[], int id) {
     }
 
     while (!feof(file)) {
-        fscanf(file,"%d %s %f", &user.id, user.name, &user.amount);
+        fscanf(file,"%d %s %d %f", &user.id, user.name, &user.age, &user.amount);
 
         if (user.id == id) {
             fclose(file);
@@ -84,13 +85,13 @@ void removeUser(char filename[], int id) {
     }
 
     while (!feof(file)) {
-        fscanf(file,"%d %s %f", &user.id, user.name, &user.amount);
+        fscanf(file,"%d %s %d %f", &user.id, user.name, &user.age, &user.amount);
 
         if (user.id == id) {
             continue;
         }
 
-        fprintf(tempFile, "%d %s %f\n", user.id, user.name, user.amount);
+        fprintf(tempFile, "%d %s %d %f\n", user.id, user.name, user.age, user.amount);
     }
 
     fclose(file);
@@ -105,10 +106,10 @@ int main() {
 
     printf("ESCREVENDO\n");
 
-    writeNewLine(filename, "1 Nicolas 1000.0");
-    writeNewLine(filename, "2 Romanhole 1200.0");
-    writeNewLine(filename, "3 Prato 2200.0");
-    writeNewLine(filename, "4 Jaime 3200.0");
+    writeNewLine(filename, "1 Nicolas 20 1000.0");
+    writeNewLine(filename, "2 Romanhole 20 1200.0");
+    writeNewLine(filename, "3 Prato 21 2200.0");
+    writeNewLine(filename, "4 Jaime 25 3200.0");
     
     printf("LENDO TODOS OS USUARIOS\n");
 
@@ -116,14 +117,14 @@ int main() {
     struct User *users = usersResponse.users;
 
     for (int i = 0; i < usersResponse.size - 1; i++) {
-        printf("%d %s %f\n", users[i].id, users[i].name, users[i].amount);
+        printf("%d %s %d %f\n", users[i].id, users[i].name, users[i].age, users[i].amount);
     }
 
     printf("LENDO UM USUARIO\n");
 
     struct User user = readUser(filename, 2);
 
-    printf("%d %s %f\n", user.id, user.name, user.amount);
+    printf("%d %s %d %f\n", user.id, user.name, user.age, user.amount);
 
     printf("REMOVENDO UM USUARIO\n");
 
@@ -133,7 +134,7 @@ int main() {
     users = usersResponse.users;
 
     for (int i = 0; i < usersResponse.size - 1; i++) {
-        printf("%d %s %f\n", users[i].id, users[i].name, users[i].amount);
+        printf("%d %s %d %f\n", users[i].id, users[i].name, users[i].age, users[i].amount);
     }
     
     free(users);
