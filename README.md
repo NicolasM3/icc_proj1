@@ -13,7 +13,7 @@ tipo Usuario
     real quantidade
 fim_tipo
 
-procedimento escreverNovaLinha(cadeia arquivo[], cadeia linha[])
+procedimento escreverNovaLinha(caracter arquivo[], caracter linha[])
     Arquivo arquivo <- abrirArquivo(arquivo, "anexar")
 
     se (arquivo == nulo) entao
