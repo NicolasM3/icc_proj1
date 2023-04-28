@@ -2,7 +2,7 @@
 
 ## Como rodar
 
-```gcc -o Main main.c | ./Main```
+```rm File1.txt && gcc -o Main main.c && ./Main```
 
 ## Pseudocódigo
 
