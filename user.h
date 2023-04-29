@@ -13,4 +13,8 @@ struct UserArray {
     int size;
 };
 
+void printUser(struct User);
+
+void printUserFromPointer(struct User*);
+
 #endif //ICC_PROJ1_USER_H

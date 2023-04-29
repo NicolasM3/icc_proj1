@@ -17,7 +17,7 @@ int isFileEmpty() {
 }
 
 void writeNewLine(char line[]) {
-    int shouldBreakLine = !isFileEmpty(FILENAME);
+    int shouldBreakLine = !isFileEmpty();
 
     FILE *file = fopen(FILENAME, "a");
 
@@ -149,14 +149,16 @@ int main() {
     struct User *users = usersResponse.users;
 
     for (int i = 0; i <= usersResponse.size - 1; i++) {
-        printf("%d %s %d %f\n", users[i].id, users[i].name, users[i].age, users[i].amount);
+        printUser(users[i]);
+        printf("\n");
     }
 
     printf("LENDO UM USUARIO\n");
 
     struct User* user = readUser(2);
 
-    printf("%d %s %d %f\n", user->id, user->name, user->age, user->amount);
+    printUserFromPointer(user);
+    printf("\n");
 
     printf("REMOVENDO UM USUARIO (id: %d - %s)\n", user->id, user->name);
 
@@ -166,7 +168,8 @@ int main() {
     users = usersResponse.users;
 
     for (int i = 0; i < usersResponse.size - 1; i++) {
-        printf("%d %s %d %f\n", users[i].id, users[i].name, users[i].age, users[i].amount);
+        printUser(users[i]);
+        printf("\n");
     }
 
     user = readUser(0);
