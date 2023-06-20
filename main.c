@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "user.h"
+#include "user.c"
 
 #define FILENAME "File1.txt"
 
@@ -90,6 +90,7 @@ void removeUser(int id) {
     FILE *file = fopen(FILENAME, "r");
     FILE *tempFile = fopen("temp.txt", "w");
     struct User user;
+    int firstTime = 0;
 
     if (file == NULL) {
         printf("Error opening file: %s\n", FILENAME);
@@ -102,7 +103,14 @@ void removeUser(int id) {
         if (user.id == id) {
             continue;
         }
-        fprintf(tempFile, "%d %s %d %f\n", user.id, user.name, user.age, user.amount);
+        if (firstTime == 0)
+        {
+            fprintf(tempFile, "%d %s %d %f", user.id, user.name, user.age, user.amount);
+            firstTime = 1;
+        }
+        else {
+            fprintf(tempFile, "\n%d %s %d %f", user.id, user.name, user.age, user.amount);
+        }
     }
 
     fclose(file);
@@ -113,8 +121,17 @@ void removeUser(int id) {
 }
 
 void executeTransfer(int senderId, int receiverId, float amount) {
+    FILE *file = fopen(FILENAME, "r");
+    FILE *tempFile = fopen("temp.txt", "w");
+    struct User* user = malloc(sizeof(struct User));
     struct User* sender = readUser(senderId);
     struct User* receiver = readUser(receiverId);
+    int firstTime = 0;
+
+    if (file == NULL) {
+        printf("Error opening file: %s\n", FILENAME);
+        return;
+    }
 
     if (sender == NULL) {
         printf("Sender not found. ID: %d\n", senderId);
@@ -133,6 +150,31 @@ void executeTransfer(int senderId, int receiverId, float amount) {
 
     sender->amount = sender->amount - amount;
     receiver->amount = receiver->amount + amount;
+
+    while (!feof(file)) {
+        fscanf(file, "%d %s %d %f", &user->id, user->name, &user->age, &user->amount);
+
+        if (user -> id == receiver->id) {
+            user = receiver;
+        }
+        if (user -> id == sender->id) {
+            user = sender;
+        }
+        if (firstTime == 0)
+        {
+             fprintf(tempFile, "%d %s %d %f", &user->id, &user->name, &user->age, &user->amount);
+            firstTime = 1;
+        }
+        else {
+             fprintf(tempFile, "\n%d %s %d %f", &user->id, &user->name, &user->age, &user->amount);
+        }
+    }
+
+    fclose(file);
+    fclose(tempFile);
+
+    remove(FILENAME);
+    rename("temp.txt", FILENAME);
 }
 
 int main() {
@@ -167,7 +209,7 @@ int main() {
     usersResponse = readUsersFromFile();
     users = usersResponse.users;
 
-    for (int i = 0; i < usersResponse.size - 1; i++) {
+    for (int i = 0; i < usersResponse.size; i++) {
         printUser(users[i]);
         printf("\n");
     }
@@ -175,7 +217,15 @@ int main() {
     user = readUser(0);
 
     printf("FAZENDO TRANSFERENCIA\n");
-    executeTransfer(1, 3, 10);
+    executeTransfer(1, 3, 100.0);
+
+    usersResponse = readUsersFromFile();
+    users = usersResponse.users;
+
+    for (int i = 0; i < usersResponse.size; i++) {
+        printUser(users[i]);
+        printf("\n");
+    }
 
     free(user);
     free(users);
