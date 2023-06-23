@@ -123,7 +123,7 @@ void removeUser(int id) {
 void executeTransfer(int senderId, int receiverId, float amount) {
     FILE *file = fopen(FILENAME, "r");
     FILE *tempFile = fopen("temp.txt", "w");
-    struct User* user = malloc(sizeof(struct User));
+    struct User* user = (struct User *)malloc(sizeof(struct User));
     struct User* sender = readUser(senderId);
     struct User* receiver = readUser(receiverId);
     int firstTime = 0;
@@ -151,22 +151,19 @@ void executeTransfer(int senderId, int receiverId, float amount) {
     sender->amount = sender->amount - amount;
     receiver->amount = receiver->amount + amount;
 
-    while (!feof(file)) {
-        fscanf(file, "%d %s %d %f", &user->id, user->name, &user->age, &user->amount);
-
-        if (user -> id == receiver->id) {
-            user = receiver;
-        }
-        if (user -> id == sender->id) {
-            user = sender;
-        }
-        if (firstTime == 0)
-        {
-             fprintf(tempFile, "%d %s %d %f", &user->id, &user->name, &user->age, &user->amount);
+     while (fscanf(file, "%d %s %d %f", &user->id, user->name, &user->age, &user->amount) == 4) {
+        if(firstTime == 0)
             firstTime = 1;
+        else
+            fprintf(tempFile, "\n");
+        if (user->id == receiver->id) {
+            fprintf(tempFile, "%d %s %d %f", receiver->id, receiver->name, receiver->age, receiver->amount);
+        }
+        else if (user->id == sender->id) {
+            fprintf(tempFile, "%d %s %d %f", sender->id, sender->name, sender->age, sender->amount);
         }
         else {
-             fprintf(tempFile, "\n%d %s %d %f", &user->id, &user->name, &user->age, &user->amount);
+            fprintf(tempFile, "%d %s %d %f", user->id, user->name, user->age, user->amount);
         }
     }
 
@@ -184,7 +181,7 @@ int main() {
     writeNewLine("2 Romanhole 20 1200.0");
     writeNewLine("3 Prato 21 2200.0");
     writeNewLine("4 Jaime 25 3200.0");
-    
+
     printf("LENDO TODOS OS USUARIOS\n");
 
     struct UserArray usersResponse = readUsersFromFile();
@@ -217,7 +214,7 @@ int main() {
     user = readUser(0);
 
     printf("FAZENDO TRANSFERENCIA\n");
-    executeTransfer(1, 3, 100.0);
+    executeTransfer(3, 4, 1000.40);
 
     usersResponse = readUsersFromFile();
     users = usersResponse.users;
