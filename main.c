@@ -48,7 +48,11 @@ struct UserArray readUsersFromFile() {
     while (!feof(file)) {
         struct User temp;
 
-        fscanf(file,"%d %s %d %f", &temp.id, temp.name, &temp.age, &temp.amount);
+        fscanf(file,"%d", &temp.id);
+        fgetc(file);
+        fscanf(file, "%99[^;]", temp.name);
+        fgetc(file);
+        fscanf(file, "%d;%f", &temp.age, &temp.amount);
 
         users = (struct User *)realloc(users, sizeof(struct User) * (size + 1));
         users[size] = temp;
@@ -68,14 +72,15 @@ struct User* readUser(int id) {
         return NULL;
     }
 
-    while (!feof(file)) {
+    while (1) {
         struct User temp;
 
-        fscanf(file,"%d %s %d %f", &temp.id, temp.name, &temp.age, &temp.amount);
+        if (fscanf(file, "%d;%99[^;];%d;%f", &temp.id, temp.name, &temp.age, &temp.amount) != 4)
+            break;
 
         if (temp.id == id) {
-            user = (struct User *)malloc(sizeof(struct User));
-            user[0] = temp;
+            user = (struct User*)malloc(sizeof(struct User));
+            *user = temp;
 
             fclose(file);
             return user;
@@ -97,20 +102,16 @@ void removeUser(int id) {
         return;
     }
 
-    while (!feof(file)) {
-        fscanf(file,"%d %s %d %f", &user.id, user.name, &user.age, &user.amount);
-
+    while (fscanf(file, "%d;%99[^;];%d;%f", &user.id, user.name, &user.age, &user.amount) == 4) {
+        if(firstTime == 0)
+            firstTime = 1;
+        else
+            fprintf(tempFile, "\n");
         if (user.id == id) {
             continue;
         }
-        if (firstTime == 0)
-        {
-            fprintf(tempFile, "%d %s %d %f", user.id, user.name, user.age, user.amount);
-            firstTime = 1;
-        }
-        else {
-            fprintf(tempFile, "\n%d %s %d %f", user.id, user.name, user.age, user.amount);
-        }
+
+        fprintf(tempFile, "%d;%s;%d;%.2f", user.id, user.name, user.age, user.amount);
     }
 
     fclose(file);
@@ -151,19 +152,19 @@ void executeTransfer(int senderId, int receiverId, float amount) {
     sender->amount = sender->amount - amount;
     receiver->amount = receiver->amount + amount;
 
-     while (fscanf(file, "%d %s %d %f", &user->id, user->name, &user->age, &user->amount) == 4) {
+     while (fscanf(file, "%d;%99[^;];%d;%f", &user->id, user->name, &user->age, &user->amount) == 4) {
         if(firstTime == 0)
             firstTime = 1;
         else
             fprintf(tempFile, "\n");
         if (user->id == receiver->id) {
-            fprintf(tempFile, "%d %s %d %f", receiver->id, receiver->name, receiver->age, receiver->amount);
+            fprintf(tempFile, "%d;%s;%d;%.2f", receiver->id, receiver->name, receiver->age, receiver->amount);
         }
         else if (user->id == sender->id) {
-            fprintf(tempFile, "%d %s %d %f", sender->id, sender->name, sender->age, sender->amount);
+            fprintf(tempFile, "%d;%s;%d;%.2f", sender->id, sender->name, sender->age, sender->amount);
         }
         else {
-            fprintf(tempFile, "%d %s %d %f", user->id, user->name, user->age, user->amount);
+            fprintf(tempFile, "%d;%s;%d;%.2f", user->id, user->name, user->age, user->amount);
         }
     }
 
@@ -177,10 +178,10 @@ void executeTransfer(int senderId, int receiverId, float amount) {
 int main() {
     printf("ESCREVENDO\n");
 
-    writeNewLine("1 Nicolas 20 1000.0");
-    writeNewLine("2 Romanhole 20 1200.0");
-    writeNewLine("3 Prato 21 2200.0");
-    writeNewLine("4 Jaime 25 3200.0");
+    writeNewLine("1;Nicolas;20;1000.0");
+    writeNewLine("2;Romanhole;20;1200.0");
+    writeNewLine("3;Prato;21;2200.0");
+    writeNewLine("4;Jaime;25;3200.0");
 
     printf("LENDO TODOS OS USUARIOS\n");
 
@@ -210,8 +211,6 @@ int main() {
         printUser(users[i]);
         printf("\n");
     }
-
-    user = readUser(0);
 
     printf("FAZENDO TRANSFERENCIA\n");
     executeTransfer(3, 4, 1000.40);
