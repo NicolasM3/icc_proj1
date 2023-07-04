@@ -175,7 +175,49 @@ void executeTransfer(int senderId, int receiverId, float amount) {
     rename("temp.txt", FILENAME);
 }
 
+void printMenu() {
+    printf("MENU\n");
+    printf("1. Adicionar usuario\n");
+    printf("2. Adicionar multiplos usuarios\n");
+    printf("3. Listar usuarios\n");
+    printf("4. Fazer transferencia entre usuarios\n");
+    printf("5. Excluir usuario\n");
+    printf("6. Fechar programa\n");
+}
+
 int main() {
+    int option = 0;
+
+    do {
+        system("clear");
+        printMenu();
+        scanf("%d", &option);
+
+        switch (option) {
+            case 1:
+                system("clear");
+
+                struct User user;
+                printf("Digite o nome do usuario\n");
+                scanf("%s", &user.name);
+                printf("Digite a idade do usuario\n");
+                scanf("%d", &user.age);
+                printf("Digite o saldo do usuario\n");
+                scanf("%d", &user.amount);
+
+                printf("Usuario adicionado!\n");
+            break;
+            case 2:
+            case 3:
+            case 4:
+            case 5:
+            case 6:
+            default:;
+                option = 1;
+            break;
+        }
+    }  while (option != 0);
+/*
     printf("ESCREVENDO\n");
 
     writeNewLine("1;Nicolas;20;1000.0");
@@ -225,6 +267,6 @@ int main() {
 
     free(user);
     free(users);
-
+*/
     return 0;
 }
