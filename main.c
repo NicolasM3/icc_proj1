@@ -228,8 +228,6 @@ int main() {
     struct User *users = usersResponse.users;
     struct User user;
 
-    
-
     do {
         system("clear");
         printMenu();
@@ -347,6 +345,9 @@ int main() {
             case 3:
                 system("clear");
 
+                usersResponse = readUsersFromFile();
+                users = usersResponse.users;
+
                 for (int i = 0; i <= usersResponse.size - 1; i++) {
                     printUser(users[i]);
                     printf("\n");
@@ -380,13 +381,16 @@ int main() {
             case 5:
                 system("clear");
                 int id;
-                for (int i = 0; i <= usersResponse.size - 1; i++) {
+                usersResponse = readUsersFromFile();
+                users = usersResponse.users;
+
+                for (int i = 0; i <= usersResponse.size -1; i++) {
                     printUser(users[i]);
                     printf("\n");
                 }
 
                 printf("\n");
-                printf("Digite o id do usuario que deseja excluir\n");
+                printf("Digite o id do usuario que deseja excluir: \n");
                 scanf("%d",&id);
 
                 struct User* user = readUser(id);
@@ -396,7 +400,7 @@ int main() {
                 usersResponse = readUsersFromFile();
                 users = usersResponse.users;
 
-                for (int i = 0; i < usersResponse.size; i++) {
+                for (int i = 0; i < usersResponse.size - 1; i++) {
                     printUser(users[i]);
                     printf("\n");
                 }
@@ -404,6 +408,7 @@ int main() {
                 printf("\n");
                 printf("Usuario deletado: \n");
                 printUserFromPointer(user);
+                printf("\n");
 
                 waitForEnter();
             break;
