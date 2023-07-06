@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "user.c"
 
@@ -197,11 +198,37 @@ int getRandomId() {
     return rand() % 1000;
 }
 
+int getUserName(char* username) {
+    char c;
+    while ((c = getchar()) != '\n' && c != EOF) { }
+    fgets(username, 1000, stdin);
+
+    username[strcspn(username, "\n")] = '\0';
+
+    for (int i = 0; username[i] != '\0'; i++) {
+        if (isnumber(username[i]) ) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int assertInputs(int result) {
+    if (result != 1) {
+        return 0;
+    }
+    return 1;
+}
+
 int main() {
     int option = 0;
+    int errorHandler = 0;
     struct UserArray usersResponse = readUsersFromFile();
     struct User *users = usersResponse.users;
     struct User user;
+
+    
 
     do {
         system("clear");
@@ -211,13 +238,30 @@ int main() {
         switch (option) {
             case 1:
                 system("clear");
-
                 printf("Digite o nome do usuario\n");
-                scanf("%s", user.name);
+                errorHandler = getUserName(user.name);
+
+                if (strlen(user.name) > 100) {
+                    printf("Nome muito grande, abortando.\n");
+                    return 0;
+                }
+                if (assertInputs(errorHandler) != 1) {
+                    printf("Nome inválido, abortando.\n");
+                    return 0;
+                }
+                
                 printf("Digite a idade do usuario\n");
-                scanf("%d", &user.age);
+                errorHandler = scanf("%d", &user.age);
+                if (assertInputs(errorHandler) != 1) {
+                    printf("Input inválido, abortando.\n");
+                    return 0;
+                }
                 printf("Digite o saldo do usuario\n");
-                scanf("%f", &user.amount);
+                errorHandler = scanf("%f", &user.amount);
+                if (assertInputs(errorHandler) != 1) {
+                    printf("Input inválido, abortando.\n");
+                    return 0;
+                }
 
                 user.id = getRandomId();
 
@@ -251,11 +295,30 @@ int main() {
 
                 for(int i = 0; i < count; i++) {
                     printf("Digite o nome do usuario\n");
-                    scanf("%s", user.name);
+                    errorHandler = getUserName(user.name);
+
+                    if (strlen(user.name) > 100) {
+                        printf("Nome muito grande, abortando.\n");
+                        return 0;
+                    }
+                    if (assertInputs(errorHandler) != 1) {
+                        printf("Nome inválido, abortando.\n");
+                        return 0;
+                    }
+                    
                     printf("Digite a idade do usuario\n");
-                    scanf("%d", &user.age);
+                    errorHandler = scanf("%d", &user.age);
+                    if (assertInputs(errorHandler) != 1) {
+                        printf("Input inválido, abortando.\n");
+                        return 0;
+                    }
+
                     printf("Digite o saldo do usuario\n");
-                    scanf("%f", &user.amount);
+                    errorHandler = scanf("%f", &user.amount);
+                    if (assertInputs(errorHandler) != 1) {
+                        printf("Input inválido, abortando.\n");
+                        return 0;
+                    }
 
                     user.id = getRandomId();
 
@@ -289,7 +352,6 @@ int main() {
                     printf("\n");
                 }
 
-                free(users);
                 waitForEnter();
             break;
             case 4:
@@ -346,63 +408,12 @@ int main() {
                 waitForEnter();
             break;
             case 6:
-                free(users);
                 return 0;
             default:
                 option = 1;
             break;
         }
     }  while (option != 0);
-/*
-    printf("ESCREVENDO\n");
 
-    writeNewLine("1;Nicolas;20;1000.0");
-    writeNewLine("2;Romanhole;20;1200.0");
-    writeNewLine("3;Prato;21;2200.0");
-    writeNewLine("4;Jaime;25;3200.0");
-
-    printf("LENDO TODOS OS USUARIOS\n");
-
-    struct UserArray usersResponse = readUsersFromFile();
-    struct User *users = usersResponse.users;
-
-    for (int i = 0; i <= usersResponse.size - 1; i++) {
-        printUser(users[i]);
-        printf("\n");
-    }
-
-    printf("LENDO UM USUARIO\n");
-
-    struct User* user = readUser(2);
-
-    printUserFromPointer(user);
-    printf("\n");
-
-    printf("REMOVENDO UM USUARIO (id: %d - %s)\n", user->id, user->name);
-
-    removeUser(2);
-
-    usersResponse = readUsersFromFile();
-    users = usersResponse.users;
-
-    for (int i = 0; i < usersResponse.size; i++) {
-        printUser(users[i]);
-        printf("\n");
-    }
-
-    printf("FAZENDO TRANSFERENCIA\n");
-    executeTransfer(3, 4, 1000.40);
-
-    usersResponse = readUsersFromFile();
-    users = usersResponse.users;
-
-    for (int i = 0; i < usersResponse.size; i++) {
-        printUser(users[i]);
-        printf("\n");
-    }
-
-    free(user);
-    free(users);
-*/
     return 0;
 }
