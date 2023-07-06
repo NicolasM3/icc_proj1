@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "user.c"
 
@@ -185,8 +186,22 @@ void printMenu() {
     printf("6. Fechar programa\n");
 }
 
+void waitForEnter() {
+    printf("Precione ENTER para voltar para o menu\n");
+    fflush(stdin);
+    getchar();
+}
+
+int getRandomId() {
+    srand(time(NULL));
+    return rand() % 1000;
+}
+
 int main() {
     int option = 0;
+    struct UserArray usersResponse = readUsersFromFile();
+    struct User *users = usersResponse.users;
+    struct User user;
 
     do {
         system("clear");
@@ -197,22 +212,143 @@ int main() {
             case 1:
                 system("clear");
 
-                struct User user;
                 printf("Digite o nome do usuario\n");
-                scanf("%s", &user.name);
+                scanf("%s", user.name);
                 printf("Digite a idade do usuario\n");
                 scanf("%d", &user.age);
                 printf("Digite o saldo do usuario\n");
-                scanf("%d", &user.amount);
+                scanf("%f", &user.amount);
 
+                user.id = getRandomId();
+
+                char line[1000] = "";
+                char temp[100] = "";
+
+                sprintf(temp, "%d", user.id);
+                strcat(line, temp);
+                strcat(line, ";");
+                strcat(line, user.name);
+                strcat(line, ";");
+                sprintf(temp, "%d", user.age);
+                strcat(line, temp);
+                strcat(line, ";");
+                sprintf(temp, "%.2f", user.amount);
+                strcat(line, temp);
+
+                writeNewLine(line);
                 printf("Usuario adicionado!\n");
+                printUser(user);
+                printf("\n");
+                waitForEnter();
             break;
             case 2:
+                system("clear");
+
+                int count = 0;
+
+                printf("Digite quantos usuarios voce vai adicionar\n");
+                scanf("%d", &count);
+
+                for(int i = 0; i < count; i++) {
+                    printf("Digite o nome do usuario\n");
+                    scanf("%s", user.name);
+                    printf("Digite a idade do usuario\n");
+                    scanf("%d", &user.age);
+                    printf("Digite o saldo do usuario\n");
+                    scanf("%f", &user.amount);
+
+                    user.id = getRandomId();
+
+                    char line[1000] = "";
+                    char temp[100] = "";
+
+                    sprintf(temp, "%d", user.id);
+                    strcat(line, temp);
+                    strcat(line, ";");
+                    strcat(line, user.name);
+                    strcat(line, ";");
+                    sprintf(temp, "%d", user.age);
+                    strcat(line, temp);
+                    strcat(line, ";");
+                    sprintf(temp, "%.2f", user.amount);
+                    strcat(line, temp);
+
+                    writeNewLine(line);
+                    printf("Usuario adicionado!\n");
+                    printUser(user);
+                    printf("\n");
+                }
+
+                printf("Usuarios adicionados!\n");
+                waitForEnter();
             case 3:
+                system("clear");
+
+                for (int i = 0; i <= usersResponse.size - 1; i++) {
+                    printUser(users[i]);
+                    printf("\n");
+                }
+
+                free(users);
+                waitForEnter();
+            break;
             case 4:
+                system("clear");
+
+                int idSender, idReceiver;
+                float amount;
+
+                printf("Digite o id do usuario que vai transferir\n");
+                scanf("%d", &idSender);
+
+                printf("Digite o valor da transferencia\n");
+                scanf("%f", &amount);
+
+                printf("Digite o id do usuario que vai receber\n");
+                scanf("%d", &idReceiver);
+
+                executeTransfer(idSender, idReceiver, amount);
+
+                printUserFromPointer(readUser(idReceiver));
+                printf("Digite o id do usuario que vai receber\n");
+                printUserFromPointer(readUser(idSender));
+
+                waitForEnter();
+            break;
             case 5:
+                system("clear");
+                int id;
+                for (int i = 0; i <= usersResponse.size - 1; i++) {
+                    printUser(users[i]);
+                    printf("\n");
+                }
+
+                printf("\n");
+                printf("Digite o id do usuario que deseja excluir\n");
+                scanf("%d",&id);
+
+                struct User* user = readUser(id);
+                removeUser(id);
+
+                system("clear");
+                usersResponse = readUsersFromFile();
+                users = usersResponse.users;
+
+                for (int i = 0; i < usersResponse.size; i++) {
+                    printUser(users[i]);
+                    printf("\n");
+                }
+
+                printf("\n");
+                printf("Usuario deletado: \n");
+                printUserFromPointer(user);
+
+                waitForEnter();
+            break;
             case 6:
-            default:;
+                free(users);
+                return 0;
+            default:
                 option = 1;
             break;
         }
