@@ -74,7 +74,7 @@ struct User* readUser(int id) {
         return NULL;
     }
 
-    while (1) {
+    while (!feof(file)) {
         struct User temp;
 
         if (fscanf(file, "%d;%99[^;];%d;%f", &temp.id, temp.name, &temp.age, &temp.amount) != 4)
@@ -123,7 +123,7 @@ void removeUser(int id) {
     rename("temp.txt", FILENAME);
 }
 
-void executeTransfer(int senderId, int receiverId, float amount) {
+int executeTransfer(int senderId, int receiverId, float amount) {
     FILE *file = fopen(FILENAME, "r");
     FILE *tempFile = fopen("temp.txt", "w");
     struct User* user = (struct User *)malloc(sizeof(struct User));
@@ -133,22 +133,22 @@ void executeTransfer(int senderId, int receiverId, float amount) {
 
     if (file == NULL) {
         printf("Error opening file: %s\n", FILENAME);
-        return;
+        return 1;
     }
 
     if (sender == NULL) {
-        printf("Sender not found. ID: %d\n", senderId);
-        return;
+        printf("Rementente nao encontrado. ID: %d\n", senderId);
+        return 1;
     }
 
     if (receiver == NULL) {
-        printf("Receiver not found. ID: %d\n", receiverId);
-        return;
+        printf("Destinatario nao encontrado. ID: %d\n", receiverId);
+        return 1;
     }
 
     if (sender->amount - amount < 0) {
-        printf("Insufficient funds. Sender amount: %f\n", sender->amount);
-        return;
+        printf("Saldo insuficiente. Saldo do remetente: %.2f\n", sender->amount);
+        return 1;
     }
 
     sender->amount = sender->amount - amount;
@@ -175,19 +175,23 @@ void executeTransfer(int senderId, int receiverId, float amount) {
 
     remove(FILENAME);
     rename("temp.txt", FILENAME);
+
+    return 0;
 }
 
 void printMenu() {
     printf("MENU\n");
     printf("1. Adicionar usuario\n");
     printf("2. Adicionar multiplos usuarios\n");
-    printf("3. Listar usuarios\n");
+    printf("3. Buscar usuario por id\n");
     printf("4. Fazer transferencia entre usuarios\n");
     printf("5. Excluir usuario\n");
-    printf("6. Fechar programa\n");
+    printf("6. Listar usuarios\n");
+    printf("7. Fechar programa\n");
 }
 
 void waitForEnter() {
+    printf("\n");
     printf("Precione ENTER para voltar para o menu\n");
     fflush(stdin);
     getchar();
@@ -195,7 +199,7 @@ void waitForEnter() {
 
 int getRandomId() {
     srand(time(NULL));
-    return rand() % 1000;
+    return rand() % 10000;
 }
 
 int getUserName(char* username) {
@@ -241,24 +245,28 @@ int main() {
 
                 if (strlen(user.name) > 100) {
                     printf("Nome muito grande, abortando.\n");
-                    return 0;
+                    waitForEnter();
+                    break;
                 }
                 if (assertInputs(errorHandler) != 1) {
                     printf("Nome inválido, abortando.\n");
-                    return 0;
+                    waitForEnter();
+                    break;
                 }
                 
                 printf("Digite a idade do usuario\n");
                 errorHandler = scanf("%d", &user.age);
                 if (assertInputs(errorHandler) != 1) {
                     printf("Input inválido, abortando.\n");
-                    return 0;
+                    waitForEnter();
+                    break;
                 }
                 printf("Digite o saldo do usuario\n");
                 errorHandler = scanf("%f", &user.amount);
                 if (assertInputs(errorHandler) != 1) {
                     printf("Input inválido, abortando.\n");
-                    return 0;
+                    waitForEnter();
+                    break;
                 }
 
                 user.id = getRandomId();
@@ -290,6 +298,12 @@ int main() {
 
                 printf("Digite quantos usuarios voce vai adicionar\n");
                 scanf("%d", &count);
+
+                if (count <= 0) {
+                    printf("Nao ha usuarios para cadastrar!\n");
+                    waitForEnter();
+                    break;
+                }
 
                 for(int i = 0; i < count; i++) {
                     printf("Digite o nome do usuario\n");
@@ -342,7 +356,31 @@ int main() {
 
                 printf("Usuarios adicionados!\n");
                 waitForEnter();
+            break;
             case 3:
+                system("clear");
+
+                printf("Digite o ID do usuario:\n");
+                int userId = 0;
+                scanf("%d", &userId);
+
+                users = readUser(userId);
+
+                if (users == NULL) {
+                    printf("Usuario nao encontrado! ID:");
+                    printf("%d", userId);
+
+                    printf("\n");
+                    waitForEnter();
+                    break;
+                }
+
+                printUserFromPointer(users);
+                printf("\n");
+
+                waitForEnter();
+            break;
+            case 4:
                 system("clear");
 
                 usersResponse = readUsersFromFile();
@@ -353,10 +391,7 @@ int main() {
                     printf("\n");
                 }
 
-                waitForEnter();
-            break;
-            case 4:
-                system("clear");
+                printf("\n");
 
                 int idSender, idReceiver;
                 float amount;
@@ -370,10 +405,15 @@ int main() {
                 printf("Digite o id do usuario que vai receber\n");
                 scanf("%d", &idReceiver);
 
-                executeTransfer(idSender, idReceiver, amount);
+                int code = executeTransfer(idSender, idReceiver, amount);
+
+                if (code == 1) {
+                    waitForEnter();
+                    break;
+                }
 
                 printUserFromPointer(readUser(idReceiver));
-                printf("Digite o id do usuario que vai receber\n");
+                printf("\n");
                 printUserFromPointer(readUser(idSender));
 
                 waitForEnter();
@@ -413,6 +453,19 @@ int main() {
                 waitForEnter();
             break;
             case 6:
+                system("clear");
+
+                usersResponse = readUsersFromFile();
+                users = usersResponse.users;
+
+                for (int i = 0; i <= usersResponse.size - 1; i++) {
+                    printUser(users[i]);
+                    printf("\n");
+                }
+
+                waitForEnter();
+            break;
+            case 7:
                 return 0;
             default:
                 option = 1;
